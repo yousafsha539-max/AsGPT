@@ -1,0 +1,458 @@
+/* =============================================
+   WhatsApp Clone — app.js
+   ============================================= */
+
+'use strict';
+
+/* ---- Helpers ---- */
+const $ = id => document.getElementById(id);
+const getTime = () => {
+  const n = new Date();
+  return String(n.getHours()).padStart(2, '0') + ':' + String(n.getMinutes()).padStart(2, '0');
+};
+
+/* ---- Data ---- */
+const AVATAR_COLORS = [
+  '#25d366', '#128c7e', '#075e54', '#00a884',
+  '#34b7f1', '#e91e63', '#9c27b0', '#ff5722', '#0097a7'
+];
+
+const EMOJIS = [
+  '😊','😂','❤️','👍','🙌','🎉','😢','🤔',
+  '😎','🙏','💯','🔥','✨','😍','🤣','👏',
+  '😅','🥰','😭','👌','🫡','💪','🫂','🥳'
+];
+
+const AUTO_REPLIES = [
+  'Haan bilkul! 😊',
+  'Theek hai, samajh gaya',
+  'Okay bhai! Koi masla nahi',
+  'Kal baat karte hain',
+  'Allah hafiz 🤲',
+  'Jazak Allah Khair',
+  'Wah wah! Shukriya',
+  'Mujhe nahi pata yaar 😅',
+  'Inshallah! 🙏',
+  'Kya baat hai! 😄',
+  'Zaroor, koi problem nahi',
+  'Bhai sun raha hoon 👂',
+  'Theek lagta hai bhai',
+  'Acha, phir kya hoga?',
+  'Haan haan, bilkul sahi kaha',
+  'Yaar sach mein? 😮',
+  'Oho! Pehle batao',
+  'Chalo theek hai 🤝',
+];
+
+const chats = [
+  {
+    id: 1,
+    name: 'Ali Bhai',
+    avatar: 'A',
+    color: '#25d366',
+    online: true,
+    lastMsg: 'Theek hai yaar! Kal milte hain 🙌',
+    time: 'Abhi',
+    unread: 3,
+    messages: [
+      { id: 1, text: 'Assalam o Alaikum!', out: false, time: '10:30', read: true },
+      { id: 2, text: 'Walaikum Assalam! Kya haal hain?', out: true, time: '10:31', read: true },
+      { id: 3, text: 'Aaj kya program hai bhai?', out: false, time: '10:32', read: true },
+      { id: 4, text: 'Ghar par hoon, kuch khaas nahi abhi', out: true, time: '10:33', read: true },
+      { id: 5, text: 'Theek hai yaar! Kal milte hain 🙌', out: false, time: '10:35', read: true },
+    ]
+  },
+  {
+    id: 2,
+    name: 'Sara Apa',
+    avatar: 'S',
+    color: '#e91e63',
+    online: true,
+    lastMsg: 'Bhej do file jaldi!',
+    time: '2 min',
+    unread: 1,
+    messages: [
+      { id: 1, text: 'Bhai! Assignment ready hai?', out: false, time: '09:00', read: true },
+      { id: 2, text: 'Haan, almost ho gayi hai', out: true, time: '09:05', read: true },
+      { id: 3, text: 'Bhej do file jaldi!', out: false, time: '09:10', read: false },
+    ]
+  },
+  {
+    id: 3,
+    name: 'Ahmed',
+    avatar: 'Ah',
+    color: '#9c27b0',
+    online: false,
+    lastMsg: 'Okay noted 👍',
+    time: '1 ghanta',
+    unread: 0,
+    messages: [
+      { id: 1, text: 'Meeting 3 baje hai aaj', out: true, time: '08:00', read: true },
+      { id: 2, text: 'Okay noted 👍', out: false, time: '08:15', read: true },
+    ]
+  },
+  {
+    id: 4,
+    name: 'Family Group 🏠',
+    avatar: 'F',
+    color: '#ff5722',
+    online: false,
+    lastMsg: 'Ammi: Sab theek hain? 💕',
+    time: '2 ghante',
+    unread: 5,
+    messages: [
+      { id: 1, text: 'Abba: Eid ki tayyari shuru karo!', out: false, time: '07:00', read: true },
+      { id: 2, text: 'Haan bilkul! 🎉', out: true, time: '07:05', read: true },
+      { id: 3, text: 'Bhai: Main market ja raha hoon', out: false, time: '07:20', read: true },
+      { id: 4, text: 'Ammi: Sab theek hain? 💕', out: false, time: '07:30', read: false },
+    ]
+  },
+  {
+    id: 5,
+    name: 'Usman',
+    avatar: 'U',
+    color: '#00a884',
+    online: true,
+    lastMsg: 'Bhai game khelo aaj raat?',
+    time: '3 ghante',
+    unread: 2,
+    messages: [
+      { id: 1, text: 'Bhai game khelo aaj raat?', out: false, time: '06:00', read: false },
+      { id: 2, text: 'Dekhta hoon, late ho sakti hai', out: true, time: '06:05', read: true },
+    ]
+  },
+  {
+    id: 6,
+    name: 'Office Group 💼',
+    avatar: 'O',
+    color: '#0097a7',
+    online: false,
+    lastMsg: 'Meeting postponed hai',
+    time: 'Kal',
+    unread: 0,
+    messages: [
+      { id: 1, text: 'Kal presentation ready rakho', out: false, time: 'Kal 15:00', read: true },
+      { id: 2, text: 'Ji zaroor, ready kar loon ga', out: true, time: 'Kal 15:10', read: true },
+      { id: 3, text: 'Meeting postponed hai', out: false, time: 'Kal 17:00', read: true },
+    ]
+  },
+  {
+    id: 7,
+    name: 'Zara',
+    avatar: 'Z',
+    color: '#128c7e',
+    online: false,
+    lastMsg: 'Kal university mein milo',
+    time: 'Kal',
+    unread: 0,
+    messages: [
+      { id: 1, text: 'Bhai notes share karo please', out: false, time: 'Kal 11:00', read: true },
+      { id: 2, text: 'Haan, send kar raha hoon', out: true, time: 'Kal 11:15', read: true },
+      { id: 3, text: 'Kal university mein milo', out: false, time: 'Kal 12:00', read: true },
+    ]
+  },
+];
+
+/* ---- State ---- */
+let activeChat = null;
+let msgIdCounter = 200;
+let typingTimeout = null;
+
+/* ---- DOM References ---- */
+const chatListEl   = $('chat-list');
+const messagesEl   = $('messages');
+const chatAreaEl   = $('chat-area');
+const noChatEl     = $('no-chat');
+const msgInput     = $('msgInput');
+const headerAvatar = $('headerAvatar');
+const headerName   = $('headerName');
+const headerStatus = $('headerStatus');
+const emojiPicker  = $('emoji-picker');
+const searchInput  = $('searchInput');
+
+/* =============================================
+   RENDER CHAT LIST
+   ============================================= */
+
+function renderChatList(filter = '') {
+  chatListEl.innerHTML = '';
+  const filtered = filter
+    ? chats.filter(c => c.name.toLowerCase().includes(filter.toLowerCase()))
+    : chats;
+
+  filtered.forEach(chat => {
+    const item = document.createElement('div');
+    item.className = 'chat-item' + (activeChat && activeChat.id === chat.id ? ' active' : '');
+    item.setAttribute('data-id', chat.id);
+    item.setAttribute('role', 'button');
+    item.setAttribute('tabindex', '0');
+    item.setAttribute('aria-label', chat.name);
+
+    item.innerHTML = `
+      <div class="chat-avatar" style="background:${chat.color}">
+        ${chat.avatar}
+        ${chat.online ? '<div class="online-dot" title="Online"></div>' : ''}
+      </div>
+      <div class="chat-info">
+        <div class="chat-top">
+          <span class="chat-name">${chat.name}</span>
+          <span class="chat-time${chat.unread ? ' has-unread' : ''}">${chat.time}</span>
+        </div>
+        <div class="chat-bottom">
+          <span class="chat-preview">${chat.lastMsg}</span>
+          ${chat.unread > 0 ? `<span class="unread-badge">${chat.unread}</span>` : ''}
+        </div>
+      </div>`;
+
+    item.addEventListener('click', () => openChat(chat.id));
+    item.addEventListener('keydown', e => { if (e.key === 'Enter') openChat(chat.id); });
+    chatListEl.appendChild(item);
+  });
+}
+
+/* =============================================
+   OPEN CHAT
+   ============================================= */
+
+function openChat(chatId) {
+  const chat = chats.find(c => c.id === chatId);
+  if (!chat) return;
+
+  activeChat = chat;
+  chat.unread = 0;
+
+  /* Update header */
+  headerAvatar.textContent = chat.avatar;
+  headerAvatar.style.background = chat.color;
+  headerName.textContent = chat.name;
+
+  if (chat.online) {
+    headerStatus.textContent = 'Online';
+    headerStatus.className = 'header-status';
+  } else {
+    headerStatus.textContent = 'Akhri dafa kal dekha gaya';
+    headerStatus.className = 'header-status offline';
+  }
+
+  /* Show chat area */
+  noChatEl.style.display = 'none';
+  chatAreaEl.classList.add('visible');
+
+  renderMessages();
+  renderChatList(searchInput.value);
+  msgInput.focus();
+}
+
+/* =============================================
+   RENDER MESSAGES
+   ============================================= */
+
+function renderMessages() {
+  if (!activeChat) return;
+  messagesEl.innerHTML = '';
+
+  /* Date divider */
+  const divider = document.createElement('div');
+  divider.className = 'date-divider';
+  divider.innerHTML = '<span>Aaj</span>';
+  messagesEl.appendChild(divider);
+
+  activeChat.messages.forEach(msg => {
+    appendMessageBubble(msg, false);
+  });
+
+  scrollToBottom();
+}
+
+function appendMessageBubble(msg, animate = true) {
+  const wrapper = document.createElement('div');
+  wrapper.className = 'msg-wrapper ' + (msg.out ? 'out' : 'in');
+  if (animate) wrapper.style.animation = 'msg-appear 0.18s ease-out';
+
+  const ticksSVG = msg.out
+    ? `<span class="msg-ticks ${msg.read ? '' : 'single'}">
+        <svg viewBox="0 0 24 24"><path d="M0.41,13.41L6,19L7.41,17.58L1.83,12M22.24,5.58L11.66,16.17L7.5,12L6.07,13.41L11.66,19L23.66,7M18,7L16.59,5.58L10.24,11.93L11.66,13.34L18,7Z"/></svg>
+       </span>`
+    : '';
+
+  wrapper.innerHTML = `
+    <div class="msg-bubble">
+      <div class="msg-text">${escapeHTML(msg.text)}</div>
+      <div class="msg-meta">
+        <span class="msg-time">${msg.time}</span>
+        ${ticksSVG}
+      </div>
+    </div>`;
+
+  messagesEl.appendChild(wrapper);
+}
+
+/* =============================================
+   SEND MESSAGE
+   ============================================= */
+
+function sendMessage() {
+  const text = msgInput.value.trim();
+  if (!text || !activeChat) return;
+
+  const msg = {
+    id: ++msgIdCounter,
+    text,
+    out: true,
+    time: getTime(),
+    read: false,
+  };
+
+  activeChat.messages.push(msg);
+  activeChat.lastMsg = text;
+  activeChat.time = 'Abhi';
+  msgInput.value = '';
+
+  appendMessageBubble(msg, true);
+  scrollToBottom();
+  renderChatList(searchInput.value);
+
+  /* Simulate reply */
+  simulateReply();
+}
+
+function simulateReply() {
+  /* Show typing indicator */
+  const typingEl = document.createElement('div');
+  typingEl.className = 'typing-wrapper';
+  typingEl.id = 'typingIndicator';
+  typingEl.innerHTML = `
+    <div class="typing-bubble">
+      <div class="typing-dot"></div>
+      <div class="typing-dot"></div>
+      <div class="typing-dot"></div>
+    </div>`;
+  messagesEl.appendChild(typingEl);
+  scrollToBottom();
+
+  const delay = 1200 + Math.random() * 1200;
+
+  typingTimeout = setTimeout(() => {
+    const indicator = $('typingIndicator');
+    if (indicator) indicator.remove();
+
+    const replyText = AUTO_REPLIES[Math.floor(Math.random() * AUTO_REPLIES.length)];
+    const replyMsg = {
+      id: ++msgIdCounter,
+      text: replyText,
+      out: false,
+      time: getTime(),
+      read: true,
+    };
+
+    if (activeChat) {
+      activeChat.messages.push(replyMsg);
+      activeChat.lastMsg = replyText;
+      activeChat.time = 'Abhi';
+      appendMessageBubble(replyMsg, true);
+      scrollToBottom();
+      renderChatList(searchInput.value);
+    }
+  }, delay);
+}
+
+/* =============================================
+   EMOJI PICKER
+   ============================================= */
+
+function buildEmojiPicker() {
+  emojiPicker.innerHTML = '';
+  EMOJIS.forEach(emoji => {
+    const btn = document.createElement('button');
+    btn.className = 'emoji-btn-item';
+    btn.textContent = emoji;
+    btn.title = emoji;
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      msgInput.value += emoji;
+      msgInput.focus();
+      toggleEmojiPicker(false);
+    });
+    emojiPicker.appendChild(btn);
+  });
+}
+
+function toggleEmojiPicker(forceClose = null) {
+  const isHidden = emojiPicker.classList.contains('hidden');
+  if (forceClose || !isHidden) {
+    emojiPicker.classList.add('hidden');
+  } else {
+    emojiPicker.classList.remove('hidden');
+    msgInput.focus();
+  }
+}
+
+/* =============================================
+   UTILITIES
+   ============================================= */
+
+function scrollToBottom() {
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+}
+
+function escapeHTML(str) {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+/* =============================================
+   EVENT LISTENERS
+   ============================================= */
+
+/* Send on Enter */
+msgInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+});
+
+/* Send Button */
+$('sendBtn').addEventListener('click', sendMessage);
+
+/* Emoji Button */
+$('emojiBtn').addEventListener('click', e => {
+  e.stopPropagation();
+  if (!activeChat) return;
+  toggleEmojiPicker();
+});
+
+/* Close emoji picker on outside click */
+document.addEventListener('click', e => {
+  if (!emojiPicker.contains(e.target) && e.target !== $('emojiBtn')) {
+    toggleEmojiPicker(true);
+  }
+});
+
+/* Search */
+searchInput.addEventListener('input', e => {
+  renderChatList(e.target.value);
+});
+
+/* Header call/video buttons (cosmetic) */
+$('videoBtn').addEventListener('click', () => alert('📹 Video call feature jald آ raha hai!'));
+$('callBtn').addEventListener('click', () => alert('📞 Voice call feature jald آ raha hai!'));
+
+/* New Chat button (cosmetic) */
+$('newChatBtn').addEventListener('click', () => alert('💬 Naya chat shuru karne ki feature jald آ raha hai!'));
+
+/* =============================================
+   INIT
+   ============================================= */
+
+function init() {
+  buildEmojiPicker();
+  renderChatList();
+  openChat(1); /* Open first chat by default */
+}
+
+init();
